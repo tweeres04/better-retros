@@ -17,5 +17,7 @@ module.exports = {
 		sourceType: 'module',
 	},
 	plugins: ['react'],
-	rules: {},
+	rules: {
+		'@typescript-eslint/indent': 0,
+	},
 };
