@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import marked from 'marked';
 
 import RetroItem from './RetroItem';
 
@@ -35,7 +36,10 @@ export default function Column({
 						<div className="column">
 							<div className="card" style={{ position: 'relative' }}>
 								<div className="card-content">
-									{item}
+									<div
+										className="content"
+										dangerouslySetInnerHTML={{ __html: marked(item) }}
+									/>
 									<div
 										className="tag"
 										style={{
