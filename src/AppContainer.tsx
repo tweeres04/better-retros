@@ -4,7 +4,7 @@ import firebase from 'firebase';
 import 'bulma/css/bulma.css';
 
 import RetroItem from './RetroItem';
-import Column from './Column';
+import App from './App';
 
 interface RetroState {
 	start: RetroItem[];
@@ -20,7 +20,7 @@ function defaultRetroState(): RetroState {
 	};
 }
 
-export default function App(): JSX.Element {
+export default function AppContainer(): JSX.Element {
 	const [{ start, stop, cont }, setItems] = useState(defaultRetroState());
 	const [loading, setLoading] = useState(true);
 	const [name, setName] = useState('');
@@ -36,21 +36,21 @@ export default function App(): JSX.Element {
 		setItems((retroSnapshot.data() as RetroState) || defaultRetroState());
 	}
 
-	async function loadState(): Promise<void> {
-		const name = localStorage.getItem('better-retros-name');
-		if (name) {
-			setName(name);
-		}
-		const retroId = localStorage.getItem('better-retros-retroId');
-		if (retroId) {
-			setRetroId(retroId);
-			setLoadedRetroId(retroId);
-			await getRetro(retroId);
-		}
-		setLoading(false);
-	}
-
 	useEffect((): void => {
+		async function loadState(): Promise<void> {
+			const name = localStorage.getItem('better-retros-name');
+			if (name) {
+				setName(name);
+			}
+			const retroId = localStorage.getItem('better-retros-retroId');
+			if (retroId) {
+				setRetroId(retroId);
+				setLoadedRetroId(retroId);
+				await getRetro(retroId);
+			}
+			setLoading(false);
+		}
+
 		loadState();
 	}, []);
 
@@ -59,24 +59,23 @@ export default function App(): JSX.Element {
 		localStorage.setItem('better-retros-retroId', retroId);
 	}, [name, retroId]);
 
-	function subscribeToRetro(): (() => void) | undefined {
-		if (retroId) {
-			return firebase
-				.firestore()
-				.doc(`retros/${retroId}`)
-				.onSnapshot(
-					(retroSnapshot): void => {
-						setItems(
-							(retroSnapshot.data() as RetroState) || defaultRetroState(),
-						);
-					},
-				);
+	useEffect((): (() => void) | undefined => {
+		function subscribeToRetro(): (() => void) | undefined {
+			if (loadedRetroId) {
+				return firebase
+					.firestore()
+					.doc(`retros/${loadedRetroId}`)
+					.onSnapshot(
+						(retroSnapshot): void => {
+							setItems(
+								(retroSnapshot.data() as RetroState) || defaultRetroState(),
+							);
+						},
+					);
+			}
 		}
-	}
-
-	useEffect((): (() => void) | undefined => subscribeToRetro(), [
-		loadedRetroId,
-	]);
+		return subscribeToRetro();
+	}, [loadedRetroId]);
 
 	function makeAddNewItem(
 		column: 'start' | 'stop' | 'cont',
@@ -121,78 +120,14 @@ export default function App(): JSX.Element {
 	];
 
 	return (
-		<>
-			<section className="section">
-				<div className="container">
-					<div className="level is-mobile">
-						<div className="level-left">
-							<div className="level-item">
-								<h1 className="title">Better Retros</h1>
-							</div>
-						</div>
-						<div className="level-right">
-							<div className="level-item">
-								<div className="field is-horizontal">
-									<div className="field-label">
-										<label htmlFor="name" className="label">
-											Your name
-										</label>
-									</div>
-									<div className="field-body">
-										<input
-											type="text"
-											id="name"
-											className="input"
-											onChange={(e): void => {
-												setName(e.target.value);
-											}}
-											value={name}
-										/>
-									</div>
-								</div>
-							</div>
-							<div className="level-item">
-								<div className="field is-horizontal">
-									<div className="field-label">
-										<label htmlFor="retroId" className="label">
-											Retro ID
-										</label>
-									</div>
-									<div className="field-body">
-										<input
-											type="text"
-											id="retroId"
-											className="input"
-											onChange={(e): void => {
-												setRetroId(e.target.value);
-											}}
-											onBlur={(e): void => {
-												setRetroId(e.target.value);
-												setLoadedRetroId(e.target.value);
-											}}
-											value={retroId}
-										/>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div className="columns is-mobile">
-						{loading ||
-							columns.map(
-								({ header, items, addItem }): JSX.Element => (
-									<Column
-										key={header}
-										header={header}
-										items={items}
-										name={name}
-										addItem={addItem}
-									/>
-								),
-							)}
-					</div>
-				</div>
-			</section>
-		</>
+		<App
+			loading={loading}
+			name={name}
+			columns={columns}
+			retroId={retroId}
+			setName={setName}
+			setRetroId={setRetroId}
+			setLoadedRetroId={setLoadedRetroId}
+		/>
 	);
 }

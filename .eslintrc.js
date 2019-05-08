@@ -7,6 +7,7 @@ module.exports = {
 		'eslint:recommended',
 		'plugin:react/recommended',
 		'plugin:@typescript-eslint/recommended',
+		'react-app',
 	],
 	parser: '@typescript-eslint/parser',
 	parserOptions: {
@@ -15,9 +16,14 @@ module.exports = {
 		},
 		ecmaVersion: 2018,
 		sourceType: 'module',
+		project: './tsconfig.json',
 	},
-	plugins: ['react'],
 	rules: {
 		'@typescript-eslint/indent': 0,
+	},
+	settings: {
+		react: {
+			version: 'detect',
+		},
 	},
 };
