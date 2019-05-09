@@ -5,6 +5,7 @@ import 'bulma/css/bulma.css';
 
 import RetroItem from './RetroItem';
 import App from './App';
+import { History } from 'history';
 
 interface RetroState {
 	start: RetroItem[];
@@ -20,44 +21,29 @@ function defaultRetroState(): RetroState {
 	};
 }
 
-export default function AppContainer(): JSX.Element {
+interface AppContainerProps {
+	match: { params: { urlRetroId: string } };
+	history: History;
+}
+
+export default function AppContainer({
+	match: {
+		params: { urlRetroId },
+	},
+	history,
+}: AppContainerProps): JSX.Element {
 	const [{ start, stop, cont }, setItems] = useState(defaultRetroState());
 	const [loading, setLoading] = useState(true);
 	const [name, setName] = useState('');
-	const [retroId, setRetroId] = useState('');
-	const [loadedRetroId, setLoadedRetroId] = useState('');
-
-	async function getRetro(retroId: string): Promise<void> {
-		const retroSnapshot = await firebase
-			.firestore()
-			.doc(`retros/${retroId}`)
-			.get();
-
-		setItems((retroSnapshot.data() as RetroState) || defaultRetroState());
-	}
+	const [retroId, setRetroId] = useState(urlRetroId || '');
+	const [loadedRetroId, setLoadedRetroId] = useState(urlRetroId || '');
 
 	useEffect((): void => {
-		async function loadState(): Promise<void> {
-			const name = localStorage.getItem('better-retros-name');
-			if (name) {
-				setName(name);
-			}
-			const retroId = localStorage.getItem('better-retros-retroId');
-			if (retroId) {
-				setRetroId(retroId);
-				setLoadedRetroId(retroId);
-				await getRetro(retroId);
-			}
-			setLoading(false);
+		const name = localStorage.getItem('better-retros-name');
+		if (name) {
+			setName(name);
 		}
-
-		loadState();
 	}, []);
-
-	useEffect((): void => {
-		localStorage.setItem('better-retros-name', name);
-		localStorage.setItem('better-retros-retroId', retroId);
-	}, [name, retroId]);
 
 	useEffect((): (() => void) | undefined => {
 		function subscribeToRetro(): (() => void) | undefined {
@@ -67,15 +53,31 @@ export default function AppContainer(): JSX.Element {
 					.doc(`retros/${loadedRetroId}`)
 					.onSnapshot(
 						(retroSnapshot): void => {
+							setLoading(false);
 							setItems(
 								(retroSnapshot.data() as RetroState) || defaultRetroState(),
 							);
 						},
 					);
+			} else {
+				setLoading(false);
 			}
 		}
+
+		history.push(loadedRetroId ? `/${loadedRetroId}` : '/');
+
+		document.title = `${
+			loadedRetroId ? `${loadedRetroId} - ` : ''
+		}Better Retros`;
+
+		setRetroId(loadedRetroId || '');
+
 		return subscribeToRetro();
-	}, [loadedRetroId]);
+	}, [loadedRetroId, history]);
+
+	useEffect((): void => {
+		localStorage.setItem('better-retros-name', name);
+	}, [name]);
 
 	function makeAddNewItem(
 		column: 'start' | 'stop' | 'cont',
@@ -101,6 +103,7 @@ export default function AppContainer(): JSX.Element {
 				});
 		};
 	}
+
 	const columns = [
 		{
 			header: 'Start',
@@ -122,11 +125,13 @@ export default function AppContainer(): JSX.Element {
 	return (
 		<App
 			loading={loading}
+			setLoading={setLoading}
 			name={name}
 			columns={columns}
 			retroId={retroId}
 			setName={setName}
 			setRetroId={setRetroId}
+			loadedRetroId={loadedRetroId}
 			setLoadedRetroId={setLoadedRetroId}
 		/>
 	);

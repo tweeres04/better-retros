@@ -5,23 +5,35 @@ import Column from './Column';
 
 interface AppProps {
 	loading: boolean;
+	setLoading: Function;
 	name: string;
 	columns: RetroItemColumn[];
 	retroId: string;
 	setName: Function;
 	setRetroId: Function;
+	loadedRetroId: string;
 	setLoadedRetroId: Function;
 }
 
 export default function App({
 	loading,
+	setLoading,
 	name,
 	columns,
 	retroId,
 	setName,
 	setRetroId,
+	loadedRetroId,
 	setLoadedRetroId,
 }: AppProps): JSX.Element {
+	function handleRetroIdSubmit(
+		e: React.SyntheticEvent<HTMLInputElement>,
+	): void {
+		setLoading(true);
+		setLoadedRetroId(retroId);
+		e.currentTarget.blur();
+	}
+
 	return (
 		<>
 			<section className="section">
@@ -65,13 +77,15 @@ export default function App({
 											type="text"
 											id="retroId"
 											className="input"
+											onKeyDown={(e): void => {
+												if (e.key == 'Enter') {
+													handleRetroIdSubmit(e);
+												}
+											}}
 											onChange={(e): void => {
 												setRetroId(e.target.value);
 											}}
-											onBlur={(e): void => {
-												setRetroId(e.target.value);
-												setLoadedRetroId(e.target.value);
-											}}
+											onBlur={handleRetroIdSubmit}
 											value={retroId}
 										/>
 									</div>
@@ -80,7 +94,15 @@ export default function App({
 						</div>
 					</div>
 					<div className="columns is-mobile">
-						{loading ||
+						{!loading && !loadedRetroId ? (
+							<div className="column">
+								<div className="card">
+									<div className="card-content has-text-centered">
+										No Retro loaded. Enter a Retro ID to get started!
+									</div>
+								</div>
+							</div>
+						) : loading ? null : (
 							columns.map(
 								({ header, items, addItem }): JSX.Element => (
 									<Column
@@ -91,7 +113,8 @@ export default function App({
 										addItem={addItem}
 									/>
 								),
-							)}
+							)
+						)}
 					</div>
 				</div>
 			</section>

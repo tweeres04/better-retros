@@ -20,6 +20,8 @@ module.exports = {
 	},
 	rules: {
 		'@typescript-eslint/indent': 0,
+		eqeqeq: 0,
+		'no-console': 'warn',
 	},
 	settings: {
 		react: {
