@@ -28,7 +28,9 @@ export default function Column({
 
 	return (
 		<div className="column">
-			<h1 className="title is-4">{header}</h1>
+			<h1 className="title is-4">
+				{header} <div className="tag">{items.length}</div>
+			</h1>
 			<div className="field">
 				<div className="control">
 					<textarea
