@@ -37,22 +37,23 @@ export default function App({
 	return (
 		<>
 			<section className="section">
+				<div className="navbar is-spaced">
+					<div className="container">
+						<div className="navbar-brand">
+							<h1 className="title is-4">Better Retros</h1>
+						</div>
+					</div>
+				</div>
+
 				<div className="container">
 					<div className="level is-mobile">
 						<div className="level-left">
 							<div className="level-item">
-								<h1 className="title">Better Retros</h1>
-							</div>
-						</div>
-						<div className="level-right">
-							<div className="level-item">
-								<div className="field is-horizontal">
-									<div className="field-label">
-										<label htmlFor="name" className="label">
-											Your name
-										</label>
-									</div>
-									<div className="field-body">
+								<div className="field">
+									<label htmlFor="name" className="label">
+										Your name
+									</label>
+									<div className="control">
 										<input
 											type="text"
 											id="name"
@@ -66,13 +67,11 @@ export default function App({
 								</div>
 							</div>
 							<div className="level-item">
-								<div className="field is-horizontal">
-									<div className="field-label">
-										<label htmlFor="retroId" className="label">
-											Retro ID
-										</label>
-									</div>
-									<div className="field-body">
+								<div className="field">
+									<label htmlFor="retroId" className="label">
+										Retro ID
+									</label>
+									<div className="control">
 										<input
 											type="text"
 											id="retroId"

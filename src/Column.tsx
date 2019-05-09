@@ -28,34 +28,7 @@ export default function Column({
 
 	return (
 		<div className="column">
-			<h1 className="title is-5">{header}</h1>
-			{items.length < 1 && <div className="box">No {header} items yet!</div>}
-			{items.map(
-				({ item, name }: RetroItem): JSX.Element => (
-					<div className="columns" key={item}>
-						<div className="column">
-							<div className="card" style={{ position: 'relative' }}>
-								<div className="card-content">
-									<div
-										className="content"
-										dangerouslySetInnerHTML={{ __html: marked(item) }}
-									/>
-									<div
-										className="tag"
-										style={{
-											position: 'absolute',
-											top: '0.5em',
-											right: '0.5em',
-										}}
-									>
-										{name}
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				),
-			)}
+			<h1 className="title is-4">{header}</h1>
 			<div className="field">
 				<div className="control">
 					<textarea
@@ -84,6 +57,33 @@ export default function Column({
 					</button>
 				</div>
 			</div>
+			{items.length < 1 && <div className="box">No {header} items yet!</div>}
+			{items.map(
+				({ item, name }: RetroItem): JSX.Element => (
+					<div className="columns" key={item}>
+						<div className="column">
+							<div className="card" style={{ position: 'relative' }}>
+								<div className="card-content">
+									<div
+										className="content"
+										dangerouslySetInnerHTML={{ __html: marked(item) }}
+									/>
+									<div
+										className="tag"
+										style={{
+											position: 'absolute',
+											top: '0.5em',
+											right: '0.5em',
+										}}
+									>
+										{name}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				),
+			)}
 		</div>
 	);
 }
