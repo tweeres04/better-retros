@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import _uniq from 'lodash/fp/uniq';
+import _orderBy from 'lodash/orderBy';
 
 import FeaturesContext from './FeaturesContext';
 
@@ -54,7 +55,9 @@ export default function App({
 		],
 		[],
 	);
-	const uniqueNames = _uniq(names);
+	let uniqueNames = _uniq(names);
+	uniqueNames = _orderBy(uniqueNames);
+
 	const nameOptions = ['All', ...uniqueNames].map(
 		(n): JSX.Element => (
 			<option id={n} key={n}>
