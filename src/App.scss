@@ -1,0 +1,11 @@
+@import '~bulma/bulma';
+
+.retro-item {
+	transition: transform 200ms ease-out;
+}
+
+.retro-item.focused {
+	box-shadow: 0 0 15px 0px $primary;
+	transform: scale(1.05);
+	border: 2px solid $primary;
+}

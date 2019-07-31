@@ -1,19 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import firebase from 'firebase';
-
-import 'bulma/css/bulma.css';
-
-import RetroItem from './RetroItem';
-import App from './App';
+import firebase from 'firebase/app';
+import update from 'immutability-helper';
 import { History } from 'history';
 
-interface RetroState {
+import './App.scss';
+
+import FeaturesContext from './FeaturesContext';
+import RetroItem from './RetroItem';
+import App from './App';
+
+interface Retro {
 	start: RetroItem[];
 	stop: RetroItem[];
 	cont: RetroItem[];
 }
 
-function defaultRetroState(): RetroState {
+type RetroColumnId = 'start' | 'stop' | 'cont';
+
+function defaultRetroState(): Retro {
 	return {
 		start: [],
 		stop: [],
@@ -32,11 +36,27 @@ export default function AppContainer({
 	},
 	history,
 }: AppContainerProps): JSX.Element {
+	const [features, setFeatures] = useState({});
 	const [{ start, stop, cont }, setItems] = useState(defaultRetroState());
 	const [loading, setLoading] = useState(true);
 	const [name, setName] = useState('');
 	const [retroId, setRetroId] = useState(urlRetroId || '');
 	const [loadedRetroId, setLoadedRetroId] = useState(urlRetroId || '');
+
+	useEffect((): void => {
+		async function getFeatures(): Promise<void> {
+			const featuresSnapshot = await firebase
+				.firestore()
+				.doc('/settings/features')
+				.get();
+
+			const features = featuresSnapshot.data() as Record<string, boolean>;
+
+			setFeatures(features);
+		}
+
+		getFeatures();
+	}, []);
 
 	useEffect((): void => {
 		const name = localStorage.getItem('better-retros-name');
@@ -54,9 +74,7 @@ export default function AppContainer({
 					.onSnapshot(
 						(retroSnapshot): void => {
 							setLoading(false);
-							setItems(
-								(retroSnapshot.data() as RetroState) || defaultRetroState(),
-							);
+							setItems((retroSnapshot.data() as Retro) || defaultRetroState());
 						},
 					);
 			} else {
@@ -79,9 +97,7 @@ export default function AppContainer({
 		localStorage.setItem('better-retros-name', name);
 	}, [name]);
 
-	function makeAddNewItem(
-		column: 'start' | 'stop' | 'cont',
-	): (newItem: string) => void {
+	function makeAddNewItem(column: RetroColumnId): (newItem: string) => void {
 		return async function(newItem: string): Promise<void> {
 			const docRef = firebase.firestore().doc(`retros/${retroId}`);
 			const docSnapshot = await docRef.get();
@@ -93,6 +109,7 @@ export default function AppContainer({
 			const retroItem: RetroItem = {
 				item: newItem,
 				name,
+				focused: false,
 			};
 
 			firebase
@@ -104,35 +121,81 @@ export default function AppContainer({
 		};
 	}
 
+	function makeToggleFocus(
+		column: RetroColumnId,
+	): (focused: boolean, index: number) => void {
+		return async function toggleFocus(
+			focused: boolean,
+			index: number,
+		): Promise<void> {
+			const retroRef = firebase.firestore().doc(`retros/${retroId}`);
+
+			function columnResetter(
+				retro: Retro,
+				columnId: RetroColumnId,
+			): RetroItem[] {
+				return retro[columnId].map(
+					(retroItem): RetroItem => ({
+						...retroItem,
+						focused: false,
+					}),
+				);
+			}
+
+			const retroDoc = await retroRef.get();
+			const columnData = retroDoc.data() as Retro;
+			let updatedRetro = {
+				start: columnResetter(columnData, 'start'),
+				stop: columnResetter(columnData, 'stop'),
+				cont: columnResetter(columnData, 'cont'),
+			};
+			updatedRetro = update(updatedRetro, {
+				[column]: {
+					[index]: {
+						focused: {
+							$set: !focused,
+						},
+					},
+				},
+			});
+			return retroRef.update(updatedRetro);
+		};
+	}
+
 	const columns = [
 		{
 			header: 'Start',
 			items: start,
 			addItem: makeAddNewItem('start'),
+			toggleFocus: makeToggleFocus('start'),
 		},
 		{
 			header: 'Stop',
 			items: stop,
 			addItem: makeAddNewItem('stop'),
+			toggleFocus: makeToggleFocus('stop'),
 		},
 		{
 			header: 'Continue',
 			items: cont,
 			addItem: makeAddNewItem('cont'),
+			toggleFocus: makeToggleFocus('cont'),
 		},
 	];
 
 	return (
-		<App
-			loading={loading}
-			setLoading={setLoading}
-			name={name}
-			columns={columns}
-			retroId={retroId}
-			setName={setName}
-			setRetroId={setRetroId}
-			loadedRetroId={loadedRetroId}
-			setLoadedRetroId={setLoadedRetroId}
-		/>
+		<FeaturesContext.Provider value={features}>
+			<App
+				loading={loading}
+				setLoading={setLoading}
+				name={name}
+				columns={columns}
+				retroId={retroId}
+				setName={setName}
+				setRetroId={setRetroId}
+				loadedRetroId={loadedRetroId}
+				setLoadedRetroId={setLoadedRetroId}
+			/>
+		</FeaturesContext.Provider>
 	);
 }

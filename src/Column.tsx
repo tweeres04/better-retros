@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import marked from 'marked';
+import classnames from 'classnames';
+import _noop from 'lodash/noop';
 
+import FeaturesContext from './FeaturesContext';
 import RetroItem from './RetroItem';
 
 interface ColumnProps {
@@ -8,6 +11,7 @@ interface ColumnProps {
 	name: string;
 	header: string;
 	addItem: (newItem: string) => void;
+	toggleFocus: Function;
 }
 
 export default function Column({
@@ -15,9 +19,11 @@ export default function Column({
 	name,
 	header,
 	addItem,
+	toggleFocus,
 }: ColumnProps): JSX.Element {
 	const [newItem, setNewItem] = useState('');
 	const newItemId = `new-${header}`;
+	const { focusableItem: focusableItemFeature } = useContext(FeaturesContext);
 
 	function submitItem(): void {
 		if (newItem && name) {
@@ -61,11 +67,23 @@ export default function Column({
 			</div>
 			{items.length < 1 && <div className="box">No {header} items yet!</div>}
 			{items.map(
-				({ item, name }: RetroItem): JSX.Element => (
+				({ item, name, focused }: RetroItem, index: number): JSX.Element => (
 					<div className="columns" key={item}>
 						<div className="column">
-							<div className="card" style={{ position: 'relative' }}>
+							<div
+								className={classnames('card retro-item', {
+									focused: focusableItemFeature && focused,
+								})}
+								onClick={
+									focusableItemFeature
+										? (): void => {
+												toggleFocus(focused, index);
+										  }
+										: _noop
+								}
+							>
 								<div className="card-content">
+									{focused}
 									<div
 										className="content"
 										dangerouslySetInnerHTML={{ __html: marked(item) }}

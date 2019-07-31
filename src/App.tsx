@@ -104,13 +104,14 @@ export default function App({
 						</div>
 					) : loading ? null : (
 						columns.map(
-							({ header, items, addItem }): JSX.Element => (
+							({ header, items, addItem, toggleFocus }): JSX.Element => (
 								<Column
 									key={header}
 									header={header}
 									items={items}
 									name={name}
 									addItem={addItem}
+									toggleFocus={toggleFocus}
 								/>
 							),
 						)
