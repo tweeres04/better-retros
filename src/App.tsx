@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import _uniq from 'lodash/fp/uniq';
+
+import FeaturesContext from './FeaturesContext';
 
 import RetroItemColumn from './RetroItemColumn';
 import Column from './Column';
@@ -13,6 +16,8 @@ interface AppProps {
 	setRetroId: Function;
 	loadedRetroId: string;
 	setLoadedRetroId: Function;
+	nameFilter: string;
+	storeNameFilter: Function;
 }
 
 export default function App({
@@ -25,7 +30,11 @@ export default function App({
 	setRetroId,
 	loadedRetroId,
 	setLoadedRetroId,
+	nameFilter,
+	storeNameFilter,
 }: AppProps): JSX.Element {
+	const { nameFilters: nameFiltersFeature } = useContext(FeaturesContext);
+
 	function handleRetroIdSubmit(
 		e: React.SyntheticEvent<HTMLInputElement>,
 	): void {
@@ -33,6 +42,22 @@ export default function App({
 		setLoadedRetroId(retroId);
 		e.currentTarget.blur();
 	}
+
+	const names = columns.reduce(
+		(result: string[], column): string[] => [
+			...result,
+			...column.items.map((i): string => i.name),
+		],
+		[],
+	);
+	const uniqueNames = _uniq(names);
+	const nameOptions = ['All', ...uniqueNames].map(
+		(n): JSX.Element => (
+			<option id={n} key={n}>
+				{n}
+			</option>
+		),
+	);
 
 	return (
 		<>
@@ -92,6 +117,30 @@ export default function App({
 							</div>
 						</div>
 					</div>
+					{nameFiltersFeature && (
+						<div className="level-right">
+							<div className="level-item">
+								<div className="field">
+									<label htmlFor="nameFilter" className="label">
+										Name Filter
+									</label>
+
+									<div className="select">
+										<select
+											name="nameFilter"
+											id="nameFilter"
+											onChange={(e): void => {
+												storeNameFilter(e.currentTarget.value);
+											}}
+											value={nameFilter}
+										>
+											{nameOptions}
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
+					)}
 				</div>
 				<div className="columns is-mobile">
 					{!loading && !loadedRetroId ? (
@@ -112,6 +161,7 @@ export default function App({
 									name={name}
 									addItem={addItem}
 									toggleFocus={toggleFocus}
+									nameFilter={nameFilter}
 								/>
 							),
 						)

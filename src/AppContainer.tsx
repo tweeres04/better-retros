@@ -30,6 +30,14 @@ interface AppContainerProps {
 	history: History;
 }
 
+function retroFactory({ start, stop, cont }: Retro): Retro {
+	return {
+		start,
+		stop,
+		cont,
+	};
+}
+
 export default function AppContainer({
 	match: {
 		params: { urlRetroId },
@@ -42,6 +50,7 @@ export default function AppContainer({
 	const [name, setName] = useState('');
 	const [retroId, setRetroId] = useState(urlRetroId || '');
 	const [loadedRetroId, setLoadedRetroId] = useState(urlRetroId || '');
+	const [nameFilter, setNameFilter] = useState('All');
 
 	useEffect((): void => {
 		async function getFeatures(): Promise<void> {
@@ -74,7 +83,14 @@ export default function AppContainer({
 					.onSnapshot(
 						(retroSnapshot): void => {
 							setLoading(false);
-							setItems((retroSnapshot.data() as Retro) || defaultRetroState());
+							const snapshotData = retroSnapshot.data();
+							setItems(
+								retroFactory(snapshotData as Retro) || defaultRetroState(),
+							);
+							setNameFilter(
+								((snapshotData as Record<string, string>)
+									.nameFilter as string) || 'All',
+							);
 						},
 					);
 			} else {
@@ -99,7 +115,7 @@ export default function AppContainer({
 
 	function makeAddNewItem(column: RetroColumnId): (newItem: string) => void {
 		return async function(newItem: string): Promise<void> {
-			const docRef = firebase.firestore().doc(`retros/${retroId}`);
+			const docRef = firebase.firestore().doc(`retros/${loadedRetroId}`);
 			const docSnapshot = await docRef.get();
 
 			if (!docSnapshot.exists) {
@@ -114,7 +130,7 @@ export default function AppContainer({
 
 			firebase
 				.firestore()
-				.doc(`retros/${retroId}`)
+				.doc(`retros/${loadedRetroId}`)
 				.update({
 					[column]: firebase.firestore.FieldValue.arrayUnion(retroItem),
 				});
@@ -128,7 +144,7 @@ export default function AppContainer({
 			focused: boolean,
 			index: number,
 		): Promise<void> {
-			const retroRef = firebase.firestore().doc(`retros/${retroId}`);
+			const retroRef = firebase.firestore().doc(`retros/${loadedRetroId}`);
 
 			function columnResetter(
 				retro: Retro,
@@ -160,6 +176,16 @@ export default function AppContainer({
 			});
 			return retroRef.update(updatedRetro);
 		};
+	}
+
+	function storeNameFilter(name: string): void {
+		setNameFilter(name);
+		firebase
+			.firestore()
+			.doc(`/retros/${loadedRetroId}`)
+			.update({
+				nameFilter: name,
+			});
 	}
 
 	const columns = [
@@ -195,6 +221,8 @@ export default function AppContainer({
 				setRetroId={setRetroId}
 				loadedRetroId={loadedRetroId}
 				setLoadedRetroId={setLoadedRetroId}
+				nameFilter={nameFilter}
+				storeNameFilter={storeNameFilter}
 			/>
 		</FeaturesContext.Provider>
 	);
