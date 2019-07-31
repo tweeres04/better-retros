@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import AppContainer from './AppContainer';
+import Export from './Export';
 import * as serviceWorker from './serviceWorker';
 import initializeFirebase from './initializeFirebase';
 
@@ -10,7 +11,10 @@ initializeFirebase();
 
 ReactDOM.render(
 	<Router>
-		<Route path={['/:urlRetroId', '/']} component={AppContainer} />
+		<Switch>
+			<Route path="/:retroId/export" component={Export} />
+			<Route path={['/:urlRetroId', '/']} component={AppContainer} />
+		</Switch>
 	</Router>,
 	document.getElementById('root'),
 );
