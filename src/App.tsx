@@ -76,7 +76,7 @@ export default function App({
 			</nav>
 
 			<div className="container">
-				<div className="level is-mobile">
+				<div className="level">
 					<div className="level-left">
 						<div className="level-item">
 							<div className="field">
@@ -158,7 +158,7 @@ export default function App({
 						)}
 					</div>
 				</div>
-				<div className="columns is-mobile">
+				<div className="columns">
 					{!loading && !loadedRetroId ? (
 						<div className="column">
 							<div className="card">
