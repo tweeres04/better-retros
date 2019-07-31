@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
-import './index.css';
 import AppContainer from './AppContainer';
 import * as serviceWorker from './serviceWorker';
 import initializeFirebase from './initializeFirebase';

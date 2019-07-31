@@ -3,6 +3,7 @@ module.exports = {
 		browser: true,
 		es6: true,
 	},
+	plugins: ['react-hooks'],
 	extends: [
 		'eslint:recommended',
 		'plugin:react/recommended',
@@ -22,6 +23,9 @@ module.exports = {
 		'@typescript-eslint/indent': 0,
 		eqeqeq: 0,
 		'no-console': 'warn',
+		'react-hooks/rules-of-hooks': 'error',
+		'react-hooks/exhaustive-deps': 'warn',
+		'no-mixed-spaces-and-tabs': 0,
 	},
 	settings: {
 		react: {
