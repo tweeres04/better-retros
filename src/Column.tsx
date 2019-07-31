@@ -12,6 +12,7 @@ interface ColumnProps {
 	header: string;
 	addItem: (newItem: string) => void;
 	toggleFocus: Function;
+	nameFilter: string;
 }
 
 export default function Column({
@@ -20,10 +21,14 @@ export default function Column({
 	header,
 	addItem,
 	toggleFocus,
+	nameFilter,
 }: ColumnProps): JSX.Element {
 	const [newItem, setNewItem] = useState('');
 	const newItemId = `new-${header}`;
-	const { focusableItem: focusableItemFeature } = useContext(FeaturesContext);
+	const {
+		focusableItem: focusableItemFeature,
+		nameFilters: nameFiltersFeature,
+	} = useContext(FeaturesContext);
 
 	function submitItem(): void {
 		if (newItem && name) {
@@ -67,42 +72,46 @@ export default function Column({
 			</div>
 			{items.length < 1 && <div className="box">No {header} items yet!</div>}
 			{items.map(
-				({ item, name, focused }: RetroItem, index: number): JSX.Element => (
-					<div className="columns" key={item}>
-						<div className="column">
-							<div
-								className={classnames('card retro-item', {
-									focused: focusableItemFeature && focused,
-								})}
-								onClick={
-									focusableItemFeature
-										? (): void => {
-												toggleFocus(focused, index);
-										  }
-										: _noop
-								}
-							>
-								<div className="card-content">
-									{focused}
-									<div
-										className="content"
-										dangerouslySetInnerHTML={{ __html: marked(item) }}
-									/>
-									<div
-										className="tag"
-										style={{
-											position: 'absolute',
-											top: '0.5em',
-											right: '0.5em',
-										}}
-									>
-										{name}
+				(
+					{ item, name, focused }: RetroItem,
+					index: number,
+				): JSX.Element | null =>
+					!nameFiltersFeature || nameFilter == 'All' || nameFilter == name ? (
+						<div className="columns" key={item}>
+							<div className="column">
+								<div
+									className={classnames('card retro-item', {
+										focused: focusableItemFeature && focused,
+									})}
+									onClick={
+										focusableItemFeature
+											? (): void => {
+													toggleFocus(focused, index);
+											  }
+											: _noop
+									}
+								>
+									<div className="card-content">
+										{focused}
+										<div
+											className="content"
+											dangerouslySetInnerHTML={{ __html: marked(item) }}
+										/>
+										<div
+											className="tag"
+											style={{
+												position: 'absolute',
+												top: '0.5em',
+												right: '0.5em',
+											}}
+										>
+											{name}
+										</div>
 									</div>
 								</div>
 							</div>
 						</div>
-					</div>
-				),
+					) : null,
 			)}
 		</div>
 	);
