@@ -1,3 +1,14 @@
+$retrospective-blue: #025d8c;
+
+$custom-colors: (
+	'retrospective-blue': (
+		$retrospective-blue,
+		findColorInvert($retrospective-blue),
+	),
+);
+
+$primary: $retrospective-blue;
+
 @import '~bulma/bulma';
 
 .retro-item {
