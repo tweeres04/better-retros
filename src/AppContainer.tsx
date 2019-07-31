@@ -6,14 +6,9 @@ import { History } from 'history';
 import './App.scss';
 
 import FeaturesContext from './FeaturesContext';
+import Retro from './Retro';
 import RetroItem from './RetroItem';
 import App from './App';
-
-interface Retro {
-	start: RetroItem[];
-	stop: RetroItem[];
-	cont: RetroItem[];
-}
 
 type RetroColumnId = 'start' | 'stop' | 'cont';
 

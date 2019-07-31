@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { Link } from 'react-router-dom';
 import _uniq from 'lodash/fp/uniq';
 
 import FeaturesContext from './FeaturesContext';
@@ -33,7 +34,10 @@ export default function App({
 	nameFilter,
 	storeNameFilter,
 }: AppProps): JSX.Element {
-	const { nameFilters: nameFiltersFeature } = useContext(FeaturesContext);
+	const {
+		nameFilters: nameFiltersFeature,
+		exports: exportsFeature,
+	} = useContext(FeaturesContext);
 
 	function handleRetroIdSubmit(
 		e: React.SyntheticEvent<HTMLInputElement>,
@@ -117,8 +121,8 @@ export default function App({
 							</div>
 						</div>
 					</div>
-					{nameFiltersFeature && (
-						<div className="level-right">
+					<div className="level-right">
+						{nameFiltersFeature && (
 							<div className="level-item">
 								<div className="field">
 									<label htmlFor="nameFilter" className="label">
@@ -139,8 +143,20 @@ export default function App({
 									</div>
 								</div>
 							</div>
-						</div>
-					)}
+						)}
+						{exportsFeature && (
+							<div className="level-item">
+								<div className="field">
+									<label htmlFor="" className="label">
+										Export
+									</label>
+									<Link to={`/${loadedRetroId}/export`}>
+										<button className="button">Export</button>
+									</Link>
+								</div>
+							</div>
+						)}
+					</div>
 				</div>
 				<div className="columns is-mobile">
 					{!loading && !loadedRetroId ? (
