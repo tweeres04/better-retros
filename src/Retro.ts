@@ -4,4 +4,5 @@ export default interface Retro {
 	start: RetroItem[];
 	stop: RetroItem[];
 	cont: RetroItem[];
+	nameFilter: string;
 }

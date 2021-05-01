@@ -15,7 +15,7 @@ export default function Export({
 		params: { retroId },
 	},
 }: ExportProps): JSX.Element | null {
-	const [retro, setRetro] = useState();
+	const [retro, setRetro] = useState<Retro>();
 	useEffect((): void => {
 		async function getRetro(): Promise<void> {
 			const retroSnapshot = await firebase
@@ -48,25 +48,57 @@ export default function Export({
 						</thead>
 						<tbody>
 							{_range(0)(rows).map(
-								(i): JSX.Element => (
-									<tr key={i}>
-										<td
-											dangerouslySetInnerHTML={{
-												__html: marked(_get(`start[${i}].item`)(retro) || ''),
-											}}
-										/>
-										<td
-											dangerouslySetInnerHTML={{
-												__html: marked(_get(`stop[${i}].item`)(retro) || ''),
-											}}
-										/>
-										<td
-											dangerouslySetInnerHTML={{
-												__html: marked(_get(`cont[${i}].item`)(retro) || ''),
-											}}
-										/>
-									</tr>
-								),
+								(i): JSX.Element => {
+									const startName = _get(`start[${i}.name]`)(retro);
+									const stopName = _get(`stop[${i}.name]`)(retro);
+									const contName = _get(`cont[${i}.name]`)(retro);
+									return (
+										<tr key={i}>
+											<td>
+												<div
+													dangerouslySetInnerHTML={{
+														__html: marked(
+															_get(`start[${i}].item`)(retro) || '',
+														),
+													}}
+												/>
+												{startName && (
+													<div className="tag">
+														{_get(`start[${i}.name]`)(retro)}
+													</div>
+												)}
+											</td>
+											<td>
+												<div
+													dangerouslySetInnerHTML={{
+														__html: marked(
+															_get(`stop[${i}].item`)(retro) || '',
+														),
+													}}
+												/>
+												{stopName && (
+													<div className="tag">
+														{_get(`stop[${i}.name]`)(retro)}
+													</div>
+												)}
+											</td>
+											<td>
+												<div
+													dangerouslySetInnerHTML={{
+														__html: marked(
+															_get(`cont[${i}].item`)(retro) || '',
+														),
+													}}
+												/>
+												{contName && (
+													<div className="tag">
+														{_get(`cont[${i}.name]`)(retro)}
+													</div>
+												)}
+											</td>
+										</tr>
+									);
+								},
 							)}
 						</tbody>
 					</table>

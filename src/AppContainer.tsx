@@ -17,6 +17,7 @@ function defaultRetroState(): Retro {
 		start: [],
 		stop: [],
 		cont: [],
+		nameFilter: 'All',
 	};
 }
 
@@ -30,6 +31,7 @@ function retroFactory({ start, stop, cont }: Retro): Retro {
 		start,
 		stop,
 		cont,
+		nameFilter: 'All',
 	};
 }
 
