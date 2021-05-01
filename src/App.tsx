@@ -10,16 +10,16 @@ import Column from './Column';
 
 interface AppProps {
 	loading: boolean;
-	setLoading: Function;
+	setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 	name: string;
 	columns: RetroItemColumn[];
 	retroId: string;
-	setName: Function;
-	setRetroId: Function;
+	setName: React.Dispatch<React.SetStateAction<string>>;
+	setRetroId: React.Dispatch<React.SetStateAction<string>>;
 	loadedRetroId: string;
-	setLoadedRetroId: Function;
+	setLoadedRetroId: React.Dispatch<React.SetStateAction<string>>;
 	nameFilter: string;
-	storeNameFilter: Function;
+	storeNameFilter: (name: string) => void;
 }
 
 export default function App({

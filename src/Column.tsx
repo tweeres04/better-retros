@@ -11,7 +11,7 @@ interface ColumnProps {
 	name: string;
 	header: string;
 	addItem: (newItem: string) => void;
-	toggleFocus: Function;
+	toggleFocus: (focused: boolean, index: number) => void;
 	nameFilter: string;
 }
 
