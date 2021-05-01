@@ -37,7 +37,9 @@ export default function Export({
 		<section className="section">
 			<div className="container">
 				<div className="content">
-					<h1 className="title">{retroId}</h1>
+					<h1 className="title">
+						<a href={`/${retroId}`}>{retroId}</a>
+					</h1>
 					<table className="table">
 						<thead>
 							<tr>
@@ -102,6 +104,9 @@ export default function Export({
 							)}
 						</tbody>
 					</table>
+					<a href={`https://better-retros.com/${retroId}`}>
+						https://better-retros.com/{retroId}
+					</a>
 				</div>
 			</div>
 		</section>
