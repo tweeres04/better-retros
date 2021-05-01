@@ -13,8 +13,6 @@
 
 # firebase
 .firebaserc
-initializeFirebase.js
-initializeFirebase.ts
 hosting.*.cache
 
 # misc
