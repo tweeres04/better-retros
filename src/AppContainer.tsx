@@ -3,6 +3,8 @@ import firebase from 'firebase/app';
 import update from 'immutability-helper';
 import { History } from 'history';
 
+import amplitude from 'amplitude-js';
+
 import './App.scss';
 
 import FeaturesContext from './FeaturesContext';
@@ -68,6 +70,8 @@ export default function AppContainer({
 		const name = localStorage.getItem('better-retros-name');
 		if (name) {
 			setName(name);
+			const identify = new amplitude.Identify().set('name', name);
+			amplitude.getInstance().identify(identify);
 		}
 	}, []);
 
@@ -78,19 +82,17 @@ export default function AppContainer({
 				return firebase
 					.firestore()
 					.doc(`retros/${loadedRetroId}`)
-					.onSnapshot(
-						(retroSnapshot): void => {
-							setLoading(false);
-							const snapshotData = retroSnapshot.data();
-							setItems(
-								retroFactory(snapshotData as Retro) || defaultRetroState(),
-							);
-							setNameFilter(
-								((snapshotData as Record<string, string>)
-									.nameFilter as string) || 'All',
-							);
-						},
-					);
+					.onSnapshot((retroSnapshot): void => {
+						setLoading(false);
+						const snapshotData = retroSnapshot.data();
+						setItems(
+							retroFactory(snapshotData as Retro) || defaultRetroState(),
+						);
+						setNameFilter(
+							((snapshotData as Record<string, string>).nameFilter as string) ||
+								'All',
+						);
+					});
 			} else {
 				setLoading(false);
 			}
@@ -112,7 +114,7 @@ export default function AppContainer({
 	}, [name]);
 
 	function makeAddNewItem(column: RetroColumnId): (newItem: string) => void {
-		return async function(newItem: string): Promise<void> {
+		return async function (newItem: string): Promise<void> {
 			const docRef = firebase.firestore().doc(`retros/${loadedRetroId}`);
 			const docSnapshot = await docRef.get();
 
@@ -126,12 +128,21 @@ export default function AppContainer({
 				focused: false,
 			};
 
-			firebase
+			const promise = firebase
 				.firestore()
 				.doc(`retros/${loadedRetroId}`)
 				.update({
 					[column]: firebase.firestore.FieldValue.arrayUnion(retroItem),
 				});
+
+			amplitude.getInstance().logEvent('add retro item', { column });
+			const identify = new amplitude.Identify().add(
+				'num retro items created',
+				1,
+			);
+			amplitude.getInstance().identify(identify);
+
+			return promise;
 		};
 	}
 
@@ -178,12 +189,9 @@ export default function AppContainer({
 
 	function storeNameFilter(name: string): void {
 		setNameFilter(name);
-		firebase
-			.firestore()
-			.doc(`/retros/${loadedRetroId}`)
-			.update({
-				nameFilter: name,
-			});
+		firebase.firestore().doc(`/retros/${loadedRetroId}`).update({
+			nameFilter: name,
+		});
 	}
 
 	const columns = [
