@@ -74,6 +74,7 @@ export default function AppContainer({
 	useEffect((): (() => void) | undefined => {
 		function subscribeToRetro(): (() => void) | undefined {
 			if (loadedRetroId) {
+				setLoading(true);
 				return firebase
 					.firestore()
 					.doc(`retros/${loadedRetroId}`)
