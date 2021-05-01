@@ -24,7 +24,6 @@ interface AppProps {
 
 export default function App({
 	loading,
-	setLoading,
 	name,
 	columns,
 	retroId,
@@ -43,7 +42,6 @@ export default function App({
 	function handleRetroIdSubmit(
 		e: React.SyntheticEvent<HTMLInputElement>,
 	): void {
-		setLoading(true);
 		setLoadedRetroId(retroId);
 		e.currentTarget.blur();
 	}
