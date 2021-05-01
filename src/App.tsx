@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import _uniq from 'lodash/fp/uniq';
 import _orderBy from 'lodash/orderBy';
+import amplitude from 'amplitude-js';
 
 import FeaturesContext from './FeaturesContext';
 
@@ -91,6 +92,11 @@ export default function App({
 										className="input"
 										onChange={(e): void => {
 											setName(e.target.value);
+											const identify = new amplitude.Identify().set(
+												'name',
+												name,
+											);
+											amplitude.getInstance().identify(identify);
 										}}
 										value={name}
 									/>

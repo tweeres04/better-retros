@@ -7,7 +7,11 @@ import Export from './Export';
 import * as serviceWorker from './serviceWorker';
 import initializeFirebase from './initializeFirebase';
 
+import amplitude from 'amplitude-js';
+
 initializeFirebase();
+
+amplitude.getInstance().init(process.env.REACT_APP_AMPLITUDE_API_KEY);
 
 ReactDOM.render(
 	<Router>
